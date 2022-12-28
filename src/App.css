@@ -4,4 +4,33 @@
   align-items: center;
   height: 100vh;
   flex-direction: column;
+  background-color: #282c34;
+  margin: auto;
+}
+
+.App-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.wrapper td, th, h1 {
+  color: white;
+}
+
+table tbody td {
+  padding: 10px;
+}
+
+table tbody th {
+  padding-top: 15px;
+}
+
+.font-color-red {
+  color: red !important;
+}
+
+.font-color-green {
+  color: green !important;
 }

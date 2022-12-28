@@ -1,91 +1,71 @@
-import './App.css';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react'
+import preloader from './img/preloader.gif'
+import './App.css'
 import { useQuery } from 'react-query'
 import { Currencies } from './types/Currencies';
-import axios from 'axios';
 
+// console.log(preloader)
 
-const getBCData = async (): Promise<Currencies> => await (await fetch('https://blockchain.info/ticker')).json()
-
-// const getBCData = async () => {
-//   axios.get('https://blockchain.info/ticker')
-//     .then(res => {
-//       console.log(res.data);
-//     })
-// }
-
-const INTERVAL_TIME = 30000;
-
-const App = () => {
+function App() {
   const [defaultCurrency, setDefaultCurrency] = useState('USD');
   const [currencies, setCurrencies] = useState<Currencies | undefined>({})
-  const { data, isLoading, error } = useQuery<Currencies>
-    (
-      'bc-data',
-      getBCData,
-      {
-        refetchInterval: INTERVAL_TIME
-      }
-    );
-
-
-  useEffect(() => {
-    if (data && !isLoading) {
-      setCurrencies(data)
-      // console.log(data)
-    }
-  }, [data])
-
-  // console.log(currency)
-  // console.log(data)
-
-  // useEffect(() => {
-  //   const interval = setInterval(refetch, INTERVAL_TIME);
-  //   return () => clearInterval()
-  // }, [refetch])
-
+  const { isLoading, isSuccess, data, refetch } = useQuery('repoData', () =>
+    fetch('https://blockchain.info/ticker').then((res) => res.json())
+  )
+  const INTERVAL_TIME = 30000
 
   const handleCurrencySelection = (e: any) => {
     setDefaultCurrency(e.currentTarget.value);
   }
 
+  // console.log(data)
 
-  // if (isLoading) {
-  //   return <div>Loading...</div>
-  // }
-  // else if (error) {
-  //   return <div>Something went wrong...</div>
-  // }
-  const options = currencies ? 
+  useEffect(() => {
+    if (isSuccess) {
+      setCurrencies(data)
+    }
+    // console.log(data)
+  }, [data, isSuccess])
+
+  useEffect(() => {
+    const interval = setInterval(refetch, INTERVAL_TIME);
+    return () => clearInterval(interval);
+  }, [refetch])
+
+  const options = currencies ?
     Object.keys(currencies).map(currency => (
       <option key={currency} value={currency}>
         {currency}
       </option>
     )) : ''
 
-
   return (
     <div className='wrapper'>
-      <h2>Bitcoin price</h2>
-      {isLoading ? <div>Loading...</div> : `${isLoading}`}
-      <select value={defaultCurrency} onChange={handleCurrencySelection}>
-        {/* {Object.keys(currencies).map(currency => (
-          <option key={currency} value={currency}>
-            {currency}
-          </option>
-        ))} */}
-        {options}
-      </select>
-      {/* <table>
+      <header className='App-header'>
+        {isLoading && <img src={preloader} alt='preloader' />}
+        <h1 className='btc'>BTC Price</h1>
+        <select value={defaultCurrency} onChange={handleCurrencySelection}>
+          {options}
+        </select>
+      </header>
+      <table>
         <tbody>
           <tr>
-            <td>{currencies && currencies[defaultCurrency].symbol}</td>
-            <td>{currencies && currencies[defaultCurrency].last}</td>
+            <th>Symbol</th>
+            <th>Last price</th>
+            <th>Buy</th>
+            <th>Sell</th>
+          </tr>
+          <tr>
+            <td>{data && data[defaultCurrency].symbol}</td>
+            <td>{data && data[defaultCurrency].last}</td>
+            <td className='font-color-green'>{data && data[defaultCurrency].buy}</td>
+            <td className='font-color-red'>{data && data[defaultCurrency].sell}</td>
           </tr>
         </tbody>
-      </table> */}
+      </table>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
