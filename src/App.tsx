@@ -17,7 +17,8 @@ const getBCData = async (): Promise<Currencies> => await (await fetch('https://b
 const INTERVAL_TIME = 30000;
 
 const App = () => {
-  const [currency, setCurrency] = useState('USD');
+  const [defaultCurrency, setDefaultCurrency] = useState('USD');
+  const [currencies, setCurrencies] = useState<Currencies | undefined>({})
   const { data, isLoading, error } = useQuery<Currencies>
     (
       'bc-data',
@@ -26,6 +27,14 @@ const App = () => {
         refetchInterval: INTERVAL_TIME
       }
     );
+
+
+  useEffect(() => {
+    if (data && !isLoading) {
+      setCurrencies(data)
+      // console.log(data)
+    }
+  }, [data])
 
   // console.log(currency)
   // console.log(data)
@@ -37,35 +46,44 @@ const App = () => {
 
 
   const handleCurrencySelection = (e: any) => {
-    setCurrency(e.currentTarget.value);
+    setDefaultCurrency(e.currentTarget.value);
   }
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-  else if (error) {
-    return <div>Something went wrong...</div>
-  }
+
+  // if (isLoading) {
+  //   return <div>Loading...</div>
+  // }
+  // else if (error) {
+  //   return <div>Something went wrong...</div>
+  // }
+  const options = currencies ? 
+    Object.keys(currencies).map(currency => (
+      <option key={currency} value={currency}>
+        {currency}
+      </option>
+    )) : ''
 
 
   return (
     <div className='wrapper'>
       <h2>Bitcoin price</h2>
-      <select value={currency} onChange={handleCurrencySelection} >
-        {data && Object.keys(data).map(currency => (
+      {isLoading ? <div>Loading...</div> : `${isLoading}`}
+      <select value={defaultCurrency} onChange={handleCurrencySelection}>
+        {/* {Object.keys(currencies).map(currency => (
           <option key={currency} value={currency}>
             {currency}
           </option>
-        ))}
+        ))} */}
+        {options}
       </select>
-      <table>
+      {/* <table>
         <tbody>
           <tr>
-            <td>{data && data[currency].symbol}</td>
-            <td>{data && data[currency].last}</td>
+            <td>{currencies && currencies[defaultCurrency].symbol}</td>
+            <td>{currencies && currencies[defaultCurrency].last}</td>
           </tr>
         </tbody>
-      </table>
+      </table> */}
     </div>
   );
 }
