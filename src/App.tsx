@@ -4,8 +4,6 @@ import './App.css'
 import { useQuery } from 'react-query'
 import { Currencies } from './types/Currencies';
 
-// console.log(preloader)
-
 function App() {
   const [defaultCurrency, setDefaultCurrency] = useState('USD');
   const [currencies, setCurrencies] = useState<Currencies | undefined>({})
@@ -18,13 +16,10 @@ function App() {
     setDefaultCurrency(e.currentTarget.value);
   }
 
-  // console.log(data)
-
   useEffect(() => {
     if (isSuccess) {
       setCurrencies(data)
     }
-    // console.log(data)
   }, [data, isSuccess])
 
   useEffect(() => {
